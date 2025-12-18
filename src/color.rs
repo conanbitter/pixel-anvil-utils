@@ -140,11 +140,15 @@ impl From<&Rgb<u8>> for Color32 {
 
 impl From<&Rgba<u8>> for Color32 {
     fn from(value: &Rgba<u8>) -> Self {
-        Color32 {
-            r: value[0] as i32,
-            g: value[1] as i32,
-            b: value[2] as i32,
-            a: value[3] as i32,
+        if value[3] < 128 {
+            Color32 { r: 0, g: 0, b: 0, a: 0 }
+        } else {
+            Color32 {
+                r: value[0] as i32,
+                g: value[1] as i32,
+                b: value[2] as i32,
+                a: 255,
+            }
         }
     }
 }
