@@ -25,6 +25,10 @@ const fn get_color_map() -> [i32; 32] {
 
 const COLORS_5TO8: [i32; 32] = get_color_map();
 
+impl Color16 {
+    pub const TRANSPARENT: Color16 = Color16(0);
+}
+
 impl Default for Color16 {
     fn default() -> Self {
         Self(0b1000000000000000)
