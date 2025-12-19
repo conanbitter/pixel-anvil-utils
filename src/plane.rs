@@ -36,11 +36,33 @@ impl Plane<Color16> {
     pub fn save<P: AsRef<Path>>(&self, filename: P) -> anyhow::Result<()> {
         let mut file = fs::File::create(filename)?;
 
+        // RLE_ZERO compression
+        let mut data: Vec<u8> = vec![];
+        let mut accum = 0u8;
+        for pixel in &self.data {
+            if pixel.is_transparent() {
+                if accum < 128 {
+                    accum += 1;
+                } else {
+                    data.push(accum - 1);
+                    accum = 0;
+                }
+            } else {
+                if accum > 0 {
+                    data.push(accum - 1);
+                    accum = 0;
+                }
+                let bytes: [u8; 2] = pixel.0.to_le_bytes();
+                data.push(bytes[0]);
+                data.push(bytes[1]);
+            }
+        }
+
         // Magic
         file.write_all("IMG ".as_bytes())?;
 
         // Size
-        let size = self.width * self.height * 2 + 2 * 4; // data+width+height
+        let size: u32 = data.len() as u32 + 2 * 4; // data+width+height
         file.write_all(&size.to_le_bytes())?;
 
         // Measurements
@@ -48,9 +70,7 @@ impl Plane<Color16> {
         file.write_all(&self.height.to_le_bytes())?;
 
         // Data
-        for pixel in &self.data {
-            file.write_all(&(pixel.0).to_le_bytes())?;
-        }
+        file.write_all(&data)?;
 
         Ok(())
     }

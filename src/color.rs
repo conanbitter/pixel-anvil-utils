@@ -27,6 +27,10 @@ const COLORS_5TO8: [i32; 32] = get_color_map();
 
 impl Color16 {
     pub const TRANSPARENT: Color16 = Color16(0);
+
+    pub fn is_transparent(self) -> bool {
+        (self.0 >> 15) > 0
+    }
 }
 
 impl Default for Color16 {
