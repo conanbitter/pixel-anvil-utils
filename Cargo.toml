@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.100"
-getargs = "0.5.0"
+argh = "0.1.13"
 image = "0.25.9"
 wild = "2.2.1"

@@ -43,13 +43,6 @@ impl Color32 {
     pub fn new(r: i32, g: i32, b: i32, a: i32) -> Color32 {
         Color32 { r, g, b, a }
     }
-
-    pub fn distance_squared(color1: Color32, color2: Color32) -> i32 {
-        let r = color1.r - color2.r;
-        let g = color1.g - color2.g;
-        let b = color1.b - color2.b;
-        r * r + g * g + b * b
-    }
 }
 
 impl Default for Color32 {
