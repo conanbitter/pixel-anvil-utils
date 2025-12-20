@@ -58,6 +58,7 @@ fn image_convert<P: AsRef<Path>>(input: P, output: P, dithering: DitheringMethod
     let img = ImageReader::open(input)?.decode()?.to_rgba8();
     let res_img = dithering(&img);
     res_img.save(output)?;
+    //res_img.debud_save(output)?;
 
     Ok(())
 }

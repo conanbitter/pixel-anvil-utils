@@ -1,6 +1,8 @@
 use std::{clone::Clone, fs, io::Write, ops::AddAssign, path::Path};
 
-use crate::color::Color16;
+use image::RgbaImage;
+
+use crate::color::{Color16, Color32};
 
 pub struct Plane<T> {
     data: Vec<T>,
@@ -72,6 +74,19 @@ impl Plane<Color16> {
         // Data
         file.write_all(&data)?;
 
+        Ok(())
+    }
+
+    pub fn debud_save<P: AsRef<Path>>(&self, filename: P) -> anyhow::Result<()> {
+        let mut img = RgbaImage::new(self.width, self.height);
+        for (x, y, color) in img.enumerate_pixels_mut() {
+            let src_color = Color32::from(self.get(x, y));
+            color[0] = src_color.r as u8;
+            color[1] = src_color.g as u8;
+            color[2] = src_color.b as u8;
+            color[3] = src_color.a as u8;
+        }
+        img.save(filename)?;
         Ok(())
     }
 }
