@@ -35,29 +35,32 @@ impl<T: AddAssign> Plane<T> {
 }
 
 impl Plane<Color16> {
+    const MAX_TRANSP_COUNT: u16 = 1 << 15;
+
     pub fn save<P: AsRef<Path>>(&self, filename: P) -> anyhow::Result<()> {
         let mut file = fs::File::create(filename)?;
 
         // RLE_ZERO compression
-        let mut data: Vec<u8> = vec![];
-        let mut accum = 0u8;
+        let mut data: Vec<u16> = vec![];
+        let mut accum = 0u16;
         for pixel in &self.data {
             if pixel.is_transparent() {
-                if accum < 128 {
+                if accum < Plane::MAX_TRANSP_COUNT {
                     accum += 1;
                 } else {
                     data.push(accum - 1);
-                    accum = 0;
+                    accum = 1;
                 }
             } else {
                 if accum > 0 {
                     data.push(accum - 1);
                     accum = 0;
                 }
-                let bytes: [u8; 2] = pixel.0.to_le_bytes();
-                data.push(bytes[0]);
-                data.push(bytes[1]);
+                data.push(pixel.0);
             }
+        }
+        if accum > 0 {
+            data.push(accum - 1);
         }
 
         // Magic
@@ -65,6 +68,7 @@ impl Plane<Color16> {
 
         // Size
         let size: u32 = data.len() as u32 + 2 * 4; // data+width+height
+        //let size: u32 = self.width * self.height * 2 + 2 * 4;
         file.write_all(&size.to_le_bytes())?;
 
         // Measurements
@@ -72,7 +76,9 @@ impl Plane<Color16> {
         file.write_all(&self.height.to_le_bytes())?;
 
         // Data
-        file.write_all(&data)?;
+        for entry in data {
+            file.write_all(&entry.to_le_bytes())?;
+        }
 
         Ok(())
     }
