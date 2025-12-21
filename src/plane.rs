@@ -83,6 +83,7 @@ impl Plane<Color16> {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub fn debud_save<P: AsRef<Path>>(&self, filename: P) -> anyhow::Result<()> {
         let mut img = RgbaImage::new(self.width, self.height);
         for (x, y, color) in img.enumerate_pixels_mut() {
